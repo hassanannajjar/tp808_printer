@@ -1,0 +1,79 @@
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+if (flutterRoot == null) {
+    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '1.0'
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+
+android {
+    compileSdkVersion flutter.compileSdkVersion
+    ndkVersion flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        applicationId "com.example.tp808_printer"
+        // You can update the following values to match your application needs.
+        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion flutter.targetSdkVersion
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+    }
+
+    buildTypes {
+        release {
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig signingConfigs.debug
+        }
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+    // implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation files('Android_Print_SDK_ESC_V1.18.jar')
+    // testImplementation 'junit:junit:4.13.2'
+    // androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    // androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    // implementation 'androidx.recyclerview:recyclerview:1.3.0'
+    // implementation "io.github.cymchad:BaseRecyclerViewAdapterHelper:3.0.0"
+    // implementation 'com.leon:lfilepickerlibrary:1.7.0'
+    // implementation 'com.github.bumptech.glide:glide:4.12.0'
+    // annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
+    // implementation 'com.yancy.imageselector:imageselector:1.3.3'
+    // implementation 'com.tbruyelle.rxpermissions:rxpermissions:0.9.3'
+    // implementation 'com.jakewharton:butterknife:10.0.0'
+    // annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
+    // implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    // implementation 'com.github.LuckSiege.PictureSelector:picture_library:v2.6.0'
+}
