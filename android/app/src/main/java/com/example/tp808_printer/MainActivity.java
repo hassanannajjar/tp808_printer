@@ -57,16 +57,13 @@ public class MainActivity extends FlutterActivity {
             PFun = new PublicFunction(thisCon);
             PAct = new PublicAction(thisCon);
             InitSetting();
+            connectUSB();
             // This method is invoked on the main thread.
-            if (call.method.equals("getBatteryLevel")) {
-              PrintTestPage();
-              int batteryLevel = connectUSB();
-
-              if (batteryLevel != -1) {
-                result.success(batteryLevel);
-              } else {
-                result.error("UNAVAILABLE", "Battery level not available.", null);
-              }
+            if (call.method.equals("connectUsb")) {
+              String text = call.arguments();
+              String printerStatus = connectUSB();
+              PrintTestPage(text);
+            result.success(printerStatus);
             } else {
               result.notImplemented();
             }
@@ -139,8 +136,8 @@ public class MainActivity extends FlutterActivity {
         }
     };
 
-    private int connectUSB() {
-        int batteryLevel = -1;
+    private String connectUSB() {
+        String printerStatus = "";
         ConnectType = "USB";
         //USB not need call "iniPort"
         mUsbManager = (UsbManager) thisCon.getSystemService(Context.USB_SERVICE);
@@ -149,33 +146,33 @@ public class MainActivity extends FlutterActivity {
 
         boolean HavePrinter = false;
         while (deviceIterator.hasNext()) {
-            batteryLevel = 1;
             device = deviceIterator.next();
             int count = device.getInterfaceCount();
             for (int i = 0; i < count; i++) {
                 UsbInterface intf = device.getInterface(i);
                 if (intf.getInterfaceClass() == 7) {
-                    // Log.d("PRINT_TAG", "vendorID--" + device.getVendorId() + "ProductId--" + device.getProductId());
-//							if (device.getVendorId()==8401&&device.getProductId()==28680){
-//								Log.d("PRINT_TAG","123");
+                    printerStatus = "PRINT_TAG"+ "vendorID--" + device.getVendorId() + "ProductId--" + device.getProductId();
+							if (device.getVendorId()==8401&&device.getProductId()==28680){
+							
                     HavePrinter = true;
                     mUsbManager.requestPermission(device, mPermissionIntent);
-//							}
+							}
                 }
             }
         }
         if (!HavePrinter)
-            batteryLevel = -1;
+         printerStatus = "Can't find printer";
 
-            return batteryLevel;
+
+        return printerStatus;
     }
 
-        public void PrintTestPage() {
+
+    public void PrintTestPage(String text) {
         try {
-//    		PAct.LanguageEncode();
             PAct.BeforePrintAction();
 
-            String strPrintText = "Print SDK Sample!";
+            String strPrintText = text;
             Print.PrintText(strPrintText + "\n", 0, 0, 0);
             Print.PrintText(strPrintText + "\n", 0, 2, 0);
             Print.PrintText(strPrintText + "\n", 0, 4, 0);
@@ -249,6 +246,8 @@ public class MainActivity extends FlutterActivity {
         return Print.PrintBarCode(Print.BC_CODE128,
                 "{BS/N:{C\014\042\070\116{A3");    // decimal 1234 = octonary 1442
     }
+
+
 
 }
 

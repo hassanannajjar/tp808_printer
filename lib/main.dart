@@ -37,25 +37,24 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     // Add your initialization code here
-    _getBatteryLevel();
+    _printTestPage();
   }
 
-  int _counter = 0;
   static const platform = MethodChannel('jigsaw.gaza.dev/tp808_printer');
-  String _batteryLevel = 'Unknown battery level.';
+  String _printerStatus = 'Check printer';
+  String? _inputText = '';
 
-  Future<void> _getBatteryLevel() async {
-    String batteryLevel;
+  Future<void> _printTestPage() async {
+    String printerStatus;
     try {
-      final int result = await platform.invokeMethod('getBatteryLevel');
-      batteryLevel = 'Battery level at $result % .';
+      printerStatus =
+          await platform.invokeMethod('connectUsb', _inputText ?? '');
     } on PlatformException catch (e) {
-      print(e.message);
-      batteryLevel = "Failed to read: '${e.message}'.";
+      printerStatus = "Failed to read: '${e.message}'.";
     }
 
     setState(() {
-      _batteryLevel = batteryLevel;
+      _printerStatus = printerStatus;
     });
   }
 
@@ -66,16 +65,27 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            TextField(
+              onChanged: (value) {
+                setState(() {
+                  _inputText = value;
+                });
+              },
+              decoration: InputDecoration(
+                labelText: 'Enter some text',
+              ),
+            ),
+            SizedBox(height: 16.0),
             Text(
-              _batteryLevel,
+              _printerStatus,
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _getBatteryLevel,
-        tooltip: 'Increment',
+        onPressed: _printTestPage,
+        tooltip: 'Print test page',
         child: const Icon(Icons.add),
       ),
     );
