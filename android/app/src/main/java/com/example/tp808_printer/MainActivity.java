@@ -21,9 +21,22 @@ import android.content.BroadcastReceiver;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 import print.Print;
 import print.PublicFunction;
 import print.WifiTool;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.plugin.common.PluginRegistry.Registrar;
+
+import java.io.ByteArrayInputStream;
 // import rx.functions.Action1;
          
             // InitCombox();
@@ -39,15 +52,11 @@ public class MainActivity extends FlutterActivity {
     private static final String ACTION_USB_PERMISSION = "com.PRINTSDKSample";
     private PublicFunction PFun = null;
     private PublicAction PAct = null;
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-
-  @Override
-  public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
-  super.configureFlutterEngine(flutterEngine);
-  
-    new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL)
-        .setMethodCallHandler(
-          (call, result) -> {
+    @Override
+protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
             thisCon = this.getApplicationContext();
             int flags = PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT;
             mPermissionIntent = PendingIntent.getBroadcast(thisCon, 0, new Intent(ACTION_USB_PERMISSION), flags);
@@ -57,12 +66,27 @@ public class MainActivity extends FlutterActivity {
             PFun = new PublicFunction(thisCon);
             PAct = new PublicAction(thisCon);
             InitSetting();
+}
+
+
+  @Override
+  public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
+  super.configureFlutterEngine(flutterEngine);
+  
+    new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL)
+        .setMethodCallHandler(
+          (call, result) -> {
+            
             connectUSB();
             // This method is invoked on the main thread.
             if (call.method.equals("connectUsb")) {
-              String text = call.arguments();
               String printerStatus = connectUSB();
-              PrintTestPage(text);
+            result.success(printerStatus);
+            } else if (call.method.equals("printTestImage")) {
+            byte[] bitmapBytes = call.arguments();
+            Bitmap bitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(bitmapBytes));
+            connectUSB();
+            String printerStatus = printImage(bitmap,1,20,false,1,false);
             result.success(printerStatus);
             } else {
               result.notImplemented();
@@ -165,6 +189,40 @@ public class MainActivity extends FlutterActivity {
 
 
         return printerStatus;
+    }
+    
+
+    public String printImage(final Bitmap bitmap, final int light, final int size, final boolean isRotate, final int sype, final boolean isLzo) {
+     final AtomicReference<String> printStatus = new AtomicReference<>("");  // Create an AtomicReference
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                PAct.BeforePrintAction();
+                Bitmap bitmapPrint = bitmap;
+                if (isRotate)
+                    bitmapPrint = Utility.Tobitmap90(bitmapPrint);
+                if (size != 0)
+                    bitmapPrint = Utility.Tobitmap(bitmapPrint, size, Utility.getHeight(size, bitmapPrint.getWidth(), bitmapPrint.getHeight()));
+                int printImage = 0;
+                try {
+                    if (!isLzo)
+                        printImage = Print.PrintBitmap(bitmapPrint, sype, light);
+                    else
+                        printImage = Print.PrintBitmapLZO(bitmapPrint, sype, light);
+                    if (printImage >= 0) {
+                     printStatus.set("print succeed");  
+                    } else {
+                       printStatus.set("print Failed");  
+                    }
+                } catch (Exception e) {
+                    printStatus.set("print Failed");  
+                }
+                bitmap.recycle();
+                bitmapPrint.recycle();
+                PAct.AfterPrintAction();
+            }
+        });
+        return printStatus.get();  
     }
 
 

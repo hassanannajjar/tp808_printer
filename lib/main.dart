@@ -37,22 +37,38 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     // Add your initialization code here
-    _printTestPage();
+    _checkPrinterStatus();
   }
 
   static const platform = MethodChannel('jigsaw.gaza.dev/tp808_printer');
   String _printerStatus = 'Check printer';
-  String? _inputText = '';
+  String _inputText =
+      'https://semicolon-ltd.com/assets/img_blogs/thermal-bill-semicolonLtd-FlyAcc.png';
 
-  Future<void> _printTestPage() async {
+  Future<void> _checkPrinterStatus() async {
     String printerStatus;
     try {
-      printerStatus =
-          await platform.invokeMethod('connectUsb', _inputText ?? '');
+      printerStatus = await platform.invokeMethod('connectUsb');
     } on PlatformException catch (e) {
       printerStatus = "Failed to read: '${e.message}'.";
     }
 
+    setState(() {
+      _printerStatus = printerStatus;
+    });
+  }
+
+  Future<void> _printTestPage() async {
+    final Uint8List imageBytes =
+        (await NetworkAssetBundle(Uri.parse(_inputText)).load(_inputText))
+            .buffer
+            .asUint8List();
+    String printerStatus;
+    try {
+      printerStatus = await platform.invokeMethod('printTestImage', imageBytes);
+    } on PlatformException catch (e) {
+      printerStatus = "Failed to read: '${e.message}'.";
+    }
     setState(() {
       _printerStatus = printerStatus;
     });
@@ -83,10 +99,21 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _printTestPage,
-        tooltip: 'Print test page',
-        child: const Icon(Icons.add),
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          FloatingActionButton(
+            onPressed: _checkPrinterStatus,
+            tooltip: 'Print test page',
+            child: const Icon(Icons.checkroom_outlined),
+          ),
+          FloatingActionButton(
+            onPressed: _printTestPage,
+            tooltip: 'Print test page',
+            child: const Icon(Icons.print),
+          ),
+        ],
       ),
     );
   }
