@@ -175,12 +175,9 @@ protected void onCreate(Bundle savedInstanceState) {
             for (int i = 0; i < count; i++) {
                 UsbInterface intf = device.getInterface(i);
                 if (intf.getInterfaceClass() == 7) {
-                    printerStatus = "PRINT_TAG"+ "vendorID--" + device.getVendorId() + "ProductId--" + device.getProductId();
-							if (device.getVendorId()==8401&&device.getProductId()==28680){
-							
+                    printerStatus = "PRINT_TAG"+ "vendorID--" + device.getVendorId() + "ProductId--" + device.getProductId();							
                     HavePrinter = true;
                     mUsbManager.requestPermission(device, mPermissionIntent);
-							}
                 }
             }
         }
