@@ -82,7 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
       printerStatus = await platform.invokeMethod('printTestImage', {
         'bitmap': imageBytes,
         'light': 0,
-        'size': 500,
+        'size': 550,
         'isRotate': false,
         'sype': 0,
         'isLzo': false,

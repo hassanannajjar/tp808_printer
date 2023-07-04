@@ -207,7 +207,7 @@ public class MainActivity extends FlutterActivity {
             } else {
               printStatus.set("print image Failed");
             }
-            Print.PrintText("\n \n \n \n");
+            Print.PrintText("\n \n \n \n \n \n");
             bitmap.recycle();
             bitmapPrint.recycle();
             PAct.AfterPrintAction();
