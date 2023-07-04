@@ -102,7 +102,7 @@ public class MainActivity extends FlutterActivity {
           try {
             String printerStatus = printImage(
               bitmap,
-              size,
+              size
             );
             result.success(printerStatus);
           } catch (Exception e) {
@@ -165,7 +165,7 @@ public class MainActivity extends FlutterActivity {
 
   public String printImage(
     final Bitmap bitmap,
-    final int size,
+    final int size
   ) throws Exception {
     final AtomicReference<String> printStatus = new AtomicReference<>(""); // Create an AtomicReference
     executorService.execute(
