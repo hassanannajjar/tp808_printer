@@ -35,7 +35,6 @@ import android.graphics.BitmapFactory;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
-
 import java.io.ByteArrayInputStream;
 // import rx.functions.Action1;
          
@@ -77,17 +76,39 @@ protected void onCreate(Bundle savedInstanceState) {
         .setMethodCallHandler(
           (call, result) -> {
             
-            connectUSB();
+           try {
+
+                         connectUSB();        
+
+            result.success("Connected success");
+            } catch (Exception e) {
+                            result.success(e.getMessage());            }
             // This method is invoked on the main thread.
             if (call.method.equals("connectUsb")) {
-              String printerStatus = connectUSB();
-            result.success(printerStatus);
-            } else if (call.method.equals("printTestImage")) {
-            byte[] bitmapBytes = call.arguments();
+                try {
+
+                         connectUSB();        
+
+            result.success("Connected success");
+            } catch (Exception e) {
+                            result.success(e.getMessage());            }
+            } else if (call.method.equals("printTestText")) {
+                PrintTestPage();
+            result.success("printerStatus");
+                } else if (call.method.equals("printTestImage")) {
+            byte[] bitmapBytes = call.argument("bitmap");
+            int light = call.argument("light");    
+            int size = call.argument("size");
+            int sype = call.argument("sype");
+            boolean isLzo = call.argument("isLzo");
+            boolean isRotate = call.argument("isRotate");
             Bitmap bitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(bitmapBytes));
-            connectUSB();
-            String printerStatus = printImage(bitmap,1,20,false,1,false);
+            try {
+
+            String printerStatus = printImage(bitmap,light,size,isRotate,sype,isLzo);
             result.success(printerStatus);
+            } catch (Exception e) {
+                            result.success(e.getMessage());            }
             } else {
               result.notImplemented();
             }
@@ -160,7 +181,7 @@ protected void onCreate(Bundle savedInstanceState) {
         }
     };
 
-    private String connectUSB() {
+    private String connectUSB() throws Exception {
         String printerStatus = "";
         ConnectType = "USB";
         //USB not need call "iniPort"
@@ -171,25 +192,32 @@ protected void onCreate(Bundle savedInstanceState) {
         boolean HavePrinter = false;
         while (deviceIterator.hasNext()) {
             device = deviceIterator.next();
+                        
+
+            printerStatus = printerStatus + "//  //" +  device.getProductName() ;
             int count = device.getInterfaceCount();
             for (int i = 0; i < count; i++) {
                 UsbInterface intf = device.getInterface(i);
                 if (intf.getInterfaceClass() == 7) {
-                    printerStatus = "PRINT_TAG"+ "vendorID--" + device.getVendorId() + "ProductId--" + device.getProductId();							
+                    Print.PortOpen(thisCon, device);
+                    printerStatus = "printer name " + device.getProductName() + "  ProductId--" + device.getProductId();							
                     HavePrinter = true;
                     mUsbManager.requestPermission(device, mPermissionIntent);
                 }
             }
         }
-        if (!HavePrinter)
-         printerStatus = "Can't find printer";
+        // if (!HavePrinter)
+        //  printerStatus = "Can't find printer";
 
 
+        // return printerStatus;
         return printerStatus;
     }
     
 
-    public String printImage(final Bitmap bitmap, final int light, final int size, final boolean isRotate, final int sype, final boolean isLzo) {
+
+
+public String printImage(final Bitmap bitmap, final int light, final int size, final boolean isRotate, final int sype, final boolean isLzo) throws Exception {
      final AtomicReference<String> printStatus = new AtomicReference<>("");  // Create an AtomicReference
         executorService.execute(new Runnable() {
             @Override
@@ -211,39 +239,36 @@ protected void onCreate(Bundle savedInstanceState) {
                     } else {
                        printStatus.set("print Failed");  
                     }
-                } catch (Exception e) {
-                    printStatus.set("print Failed");  
-                }
+                    Print.PrintText("\n \n");
                 bitmap.recycle();
                 bitmapPrint.recycle();
                 PAct.AfterPrintAction();
+                Print.CutPaper(Print.PARTIAL_CUT);
+                } catch (Exception e) {
+                    printStatus.set("print Failed" + e.getMessage());  
+                }
             }
         });
         return printStatus.get();  
     }
 
-
-    public void PrintTestPage(String text) {
+    public String PrintTestPage() {
         try {
+            //    		PAct.LanguageEncode();
             PAct.BeforePrintAction();
-
-            String strPrintText = text;
+            String strPrintText = "Print SDK Sample!";
             Print.PrintText(strPrintText + "\n", 0, 0, 0);
+//			Print.PrintText(thisCon.getString(R.string.activity_main_heightsize) + strPrintText+"\n",0,16,0);
+//			Print.PrintText(thisCon.getString(R.string.activity_main_widthsize) + strPrintText+"\n",0,32,0);
+//			Print.PrintText(thisCon.getString(R.string.activity_main_heightwidthsize) + strPrintText+"\n",0,48,0);
             Print.PrintText(strPrintText + "\n", 0, 2, 0);
-            Print.PrintText(strPrintText + "\n", 0, 4, 0);
-            Print.PrintText(strPrintText + "\n", 0, 1, 0);
-
-            //"UPC-A,UPC-E,EAN8,EAN13,CODE39,ITF,CODEBAR,CODE128,CODE93,QRCODE"
-            Barcode_BC_UPCA();
-            Barcode_BC_UPCE();
-            Barcode_BC_EAN8();
-            Barcode_BC_EAN13();
-            Barcode_BC_CODEBAR();
-            Barcode_BC_ITF();
-            Barcode_BC_CODE128();
+            Print.PrintText( strPrintText + "\n", 0, 4, 0);
+            Print.PrintText( strPrintText + "\n", 0, 1, 0);
             PAct.AfterPrintAction();
+            return "print success";
         } catch (Exception e) {
-            // return e;
+
+            return PAct.toString() + e.getMessage();
             // Log.e("SDKSample", (new StringBuilder("Activity_Main --> onClickWIFI ")).append(e.getMessage()).toString());
         }
     }

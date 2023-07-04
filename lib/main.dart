@@ -58,14 +58,35 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  Future<void> _printTestText() async {
+    String printerStatus;
+    try {
+      await platform.invokeMethod('printTestText');
+    } on PlatformException catch (e) {
+      printerStatus = "Failed to read: '${e.message}'.";
+    }
+    setState(() {
+      _printerStatus = 'Printed';
+    });
+  }
+
   Future<void> _printTestPage() async {
+    String imageUrl =
+        'https://semicolon-ltd.com/assets/img_blogs/thermal-bill-semicolonLtd-FlyAcc.png';
     final Uint8List imageBytes =
-        (await NetworkAssetBundle(Uri.parse(_inputText)).load(_inputText))
+        (await NetworkAssetBundle(Uri.parse(imageUrl)).load(imageUrl))
             .buffer
             .asUint8List();
     String printerStatus;
     try {
-      printerStatus = await platform.invokeMethod('printTestImage', imageBytes);
+      printerStatus = await platform.invokeMethod('printTestImage', {
+        'bitmap': imageBytes,
+        'light': 0,
+        'size': 500,
+        'isRotate': false,
+        'sype': 0,
+        'isLzo': false,
+      });
     } on PlatformException catch (e) {
       printerStatus = "Failed to read: '${e.message}'.";
     }
@@ -109,9 +130,14 @@ class _MyHomePageState extends State<MyHomePage> {
             child: const Icon(Icons.checkroom_outlined),
           ),
           FloatingActionButton(
-            onPressed: _printTestPage,
+            onPressed: _printTestText,
             tooltip: 'Print test page',
             child: const Icon(Icons.print),
+          ),
+          FloatingActionButton(
+            onPressed: _printTestPage,
+            tooltip: 'Print test page',
+            child: const Icon(Icons.image),
           ),
         ],
       ),
