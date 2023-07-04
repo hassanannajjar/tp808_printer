@@ -305,8 +305,6 @@ protected void onCreate(Bundle savedInstanceState) {
                 "{BS/N:{C\014\042\070\116{A3");    // decimal 1234 = octonary 1442
     }
 
-
-
 }
 
 
