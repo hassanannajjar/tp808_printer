@@ -36,7 +36,6 @@ import print.Print;
 import print.PublicFunction;
 import print.WifiTool;
 
-
 public class MainActivity extends FlutterActivity {
 
   private static final String CHANNEL = "jigsaw.gaza.dev/tp808_printer";
@@ -76,8 +75,8 @@ public class MainActivity extends FlutterActivity {
       CHANNEL
     )
       .setMethodCallHandler((call, result) -> {
-      try {
-        String status = connectUSB();
+        try {
+          String status = connectUSB();
           result.success(status);
         } catch (Exception e) {
           result.success(e.getMessage());
@@ -159,16 +158,13 @@ public class MainActivity extends FlutterActivity {
         UsbInterface intf = device.getInterface(i);
         if (intf.getInterfaceClass() == 7) {
           Print.PortOpen(thisCon, device);
-          printerStatus =
-            "Connected to printer => " +
-            device.getProductName();
+          printerStatus = "Connected to printer => " + device.getProductName();
           HavePrinter = true;
           mUsbManager.requestPermission(device, mPermissionIntent);
         }
       }
     }
-    if (!HavePrinter)
-     printerStatus = "Can't find printer";
+    if (!HavePrinter) printerStatus = "Can't find printer";
 
     return printerStatus;
   }
@@ -200,8 +196,7 @@ public class MainActivity extends FlutterActivity {
             );
           int printImage = 0;
           try {
-             printImage =
-              Print.PrintBitmap(bitmapPrint, sype, light);
+            printImage = Print.PrintBitmap(bitmapPrint, sype, light);
             if (printImage >= 0) {
               printStatus.set("print image succeed");
             } else {
@@ -235,6 +230,4 @@ public class MainActivity extends FlutterActivity {
       return PAct.toString() + e.getMessage();
     }
   }
-
 }
-

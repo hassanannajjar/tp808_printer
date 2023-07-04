@@ -36,7 +36,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    // Add your initialization code here
     _checkPrinterStatus();
   }
 
@@ -61,12 +60,12 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _printTestText() async {
     String printerStatus;
     try {
-      await platform.invokeMethod('printTestText');
+      printerStatus = await platform.invokeMethod('printTestText');
     } on PlatformException catch (e) {
       printerStatus = "Failed to read: '${e.message}'.";
     }
     setState(() {
-      _printerStatus = 'Printed';
+      _printerStatus = printerStatus;
     });
   }
 
@@ -85,7 +84,6 @@ class _MyHomePageState extends State<MyHomePage> {
         'size': 500,
         'isRotate': false,
         'sype': 0,
-        'isLzo': false,
       });
     } on PlatformException catch (e) {
       printerStatus = "Failed to read: '${e.message}'.";
