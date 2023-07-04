@@ -176,6 +176,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.4.16"
+  tp808_printer:
+    dependency: "direct main"
+    description:
+      name: tp808_printer
+      sha256: "5889c4153b3b21fe2e8e1247617d142c21b66d2533315b3ab1ac5b6720adc3ab"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   vector_math:
     dependency: transitive
     description:
@@ -186,3 +194,4 @@ packages:
     version: "2.1.4"
 sdks:
   dart: ">=2.19.2 <3.0.0"
+  flutter: ">=1.17.0"

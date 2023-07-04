@@ -95,20 +95,14 @@ public class MainActivity extends FlutterActivity {
           result.success("printerStatus");
         } else if (call.method.equals("printTestImage")) {
           byte[] bitmapBytes = call.argument("bitmap");
-          int light = call.argument("light");
           int size = call.argument("size");
-          int sype = call.argument("sype");
-          boolean isRotate = call.argument("isRotate");
           Bitmap bitmap = BitmapFactory.decodeStream(
             new ByteArrayInputStream(bitmapBytes)
           );
           try {
             String printerStatus = printImage(
               bitmap,
-              light,
               size,
-              isRotate,
-              sype
             );
             result.success(printerStatus);
           } catch (Exception e) {
@@ -171,10 +165,7 @@ public class MainActivity extends FlutterActivity {
 
   public String printImage(
     final Bitmap bitmap,
-    final int light,
     final int size,
-    final boolean isRotate,
-    final int sype
   ) throws Exception {
     final AtomicReference<String> printStatus = new AtomicReference<>(""); // Create an AtomicReference
     executorService.execute(
@@ -183,7 +174,6 @@ public class MainActivity extends FlutterActivity {
         public void run() {
           PAct.BeforePrintAction();
           Bitmap bitmapPrint = bitmap;
-          if (isRotate) bitmapPrint = Utility.Tobitmap90(bitmapPrint);
           if (size != 0) bitmapPrint =
             Utility.Tobitmap(
               bitmapPrint,
@@ -196,7 +186,7 @@ public class MainActivity extends FlutterActivity {
             );
           int printImage = 0;
           try {
-            printImage = Print.PrintBitmap(bitmapPrint, sype, light);
+            printImage = Print.PrintBitmap(bitmapPrint, 0, 0);
             if (printImage >= 0) {
               printStatus.set("print image succeed");
             } else {

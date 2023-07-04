@@ -80,10 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       printerStatus = await platform.invokeMethod('printTestImage', {
         'bitmap': imageBytes,
-        'light': 0,
         'size': 550,
-        'isRotate': false,
-        'sype': 0,
       });
     } on PlatformException catch (e) {
       printerStatus = "Failed to read: '${e.message}'.";
