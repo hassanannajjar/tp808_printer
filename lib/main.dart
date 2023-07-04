@@ -33,10 +33,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  Printer808 _printer808 = Printer808();
   @override
   void initState() {
     super.initState();
-    Printer808().checkStatus();
+    _printer808.checkStatus();
   }
 
   Future<void> _printTestPage() async {
@@ -46,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
         (await NetworkAssetBundle(Uri.parse(imageUrl)).load(imageUrl))
             .buffer
             .asUint8List();
-    Printer808().printImage(imageBytes: imageBytes);
+    _printer808.printImage(imageBytes: imageBytes);
   }
 
   @override
@@ -65,12 +66,12 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           FloatingActionButton(
-            onPressed: Printer808().checkStatus,
+            onPressed: _printer808.checkStatus,
             tooltip: 'Print test page',
             child: const Icon(Icons.checkroom_outlined),
           ),
           FloatingActionButton(
-            onPressed: () => Printer808().printText('Jigsaw test '),
+            onPressed: () => _printer808.printText('Jigsaw test '),
             tooltip: 'Print test page',
             child: const Icon(Icons.print),
           ),

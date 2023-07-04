@@ -103,7 +103,7 @@ public class MainActivity extends FlutterActivity {
           try {
             String printerStatus = printImage(
               bitmap,
-              size,
+              size
             );
             result.success(printerStatus);
           } catch (Exception e) {
