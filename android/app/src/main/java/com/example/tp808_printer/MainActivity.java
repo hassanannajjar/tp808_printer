@@ -90,10 +90,11 @@ public class MainActivity extends FlutterActivity {
           } catch (Exception e) {
             result.success(e.getMessage());
           }
-        } else if (call.method.equals("printTestText")) {
-          PrintTestText();
-          result.success("printerStatus");
-        } else if (call.method.equals("printTestImage")) {
+        } else if (call.method.equals("printText")) {
+          String text = call.argument("text");
+          PrintTextPrinter(text);
+          result.success("print success");
+        } else if (call.method.equals("printImage")) {
           byte[] bitmapBytes = call.argument("bitmap");
           int size = call.argument("size");
           Bitmap bitmap = BitmapFactory.decodeStream(
@@ -102,7 +103,7 @@ public class MainActivity extends FlutterActivity {
           try {
             String printerStatus = printImage(
               bitmap,
-              size,
+              size
             );
             result.success(printerStatus);
           } catch (Exception e) {
@@ -165,7 +166,7 @@ public class MainActivity extends FlutterActivity {
 
   public String printImage(
     final Bitmap bitmap,
-    final int size,
+    final int size
   ) throws Exception {
     final AtomicReference<String> printStatus = new AtomicReference<>(""); // Create an AtomicReference
     executorService.execute(
@@ -206,14 +207,10 @@ public class MainActivity extends FlutterActivity {
     return printStatus.get();
   }
 
-  public String PrintTestText() {
+  public String PrintTextPrinter(String text) {
     try {
       PAct.BeforePrintAction();
-      String strPrintText = "Print Jigsaw Kiosk test";
-      Print.PrintText(strPrintText + "\n", 0, 0, 0);
-      Print.PrintText(strPrintText + "\n", 0, 2, 0);
-      Print.PrintText(strPrintText + "\n", 0, 4, 0);
-      Print.PrintText(strPrintText + "\n", 0, 1, 0);
+      Print.PrintText(text);
       PAct.AfterPrintAction();
       return "print success";
     } catch (Exception e) {
